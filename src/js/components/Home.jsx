@@ -10,7 +10,7 @@ export default function Home() {
     const [createInput, setCreateInput] = useState({ text: "" }); // Name of the new task
     const [completeUserTask, setCompleteUserTask] = useState({ text: "" }); // For specifying the user who needs to complete a task
     const [completeInput, setCompleteInput] = useState({ text: "" }); // Name of the task to complete
-    const [eliminateUserState, setEliminateUserState] = useState([]);
+    const [eliminateUserState, setEliminateUserState] = useState("");
 
     // Fetch users automatically when the component mounts
     useEffect(() => {
@@ -38,6 +38,21 @@ export default function Home() {
             setUsers(updatedUsers);
         } catch (error) {
             console.error("Error creating user:", error);
+        }
+    };
+
+    // Function to eliminate a user
+    const handleEliminateUser = async () => {
+        try {
+            const success = await eliminateUser(eliminateUserState);
+            if (success) {
+                // Refresh the list of users after eliminating one
+                const updatedUsers = await createdUsers(0, 100);
+                setUsers(updatedUsers);
+                setEliminateUserState(""); // Clear the selected user
+            }
+        } catch (error) {
+            console.error("Error eliminating user:", error);
         }
     };
 
@@ -81,7 +96,7 @@ export default function Home() {
                 </label>
 
                 {/* Eliminate User Button */}
-                <button onClick={() => eliminateUser(eliminateUserState)} className="btn btn-danger m-2">
+                <button onClick={handleEliminateUser} className="btn btn-danger m-2">
                     Eliminate user  
                 </button>
             </div>
@@ -205,6 +220,7 @@ export default function Home() {
                         const task = tasks.find((t) => t.id === parseInt(completeInput.text));
                         if (!task) {
                             console.error("Task not found with the provided ID");
+                            alert("Task not found with the provided ID"); // Show an alert to the user
                             return;
                         }
                         await completeTask(completeUserTask.text, task.id);
@@ -217,5 +233,3 @@ export default function Home() {
         </div>
     );
 }
-
-
